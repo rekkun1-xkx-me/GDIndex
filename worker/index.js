@@ -1,14 +1,27 @@
 import mime from 'mime'
-import GoogleDrive from './googleDrive'
+import GoogleDrive from './googleDrive.js'
 
-const gd = new GoogleDrive(self.props)
+var config = {
+	title: 'GDIndex',
+	default_root_id: '0AHcxHWCmV4OOUk9PVA',
+	client_id: '202264815644.apps.googleusercontent.com',
+	client_secret: 'X4Z3ca8xfWDb1Voo-F9a7ZxJ',
+	refresh_token: '1//04qa0aENe3LEnCgYIARAAGAQSNwF-L9Iruv5PoE7MnMCp9FJSDEa6ryyHaAu8vxWD95q6U1sDxPv3wRqTi6r7zV3IfCU7RjiVR4E',
+	auth: false,
+	user: '',
+	pass: '',
+	upload: false,
+	lite: false
+};
 
-const HTML = `<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>${self.props.title}</title><link href="/~_~_gdindex/resources/css/app.css" rel=stylesheet></head><body><script>window.props = { title: '${self.props.title}', default_root_id: '${self.props.default_root_id}', api: location.protocol + '//' + location.host, upload: ${self.props.upload} }<\/script><div id=app></div><script src="/~_~_gdindex/resources/js/app.js"><\/script></body></html>`
+const gd = new GoogleDrive(config)
+
+const HTML = `<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><title>${config.title}</title><link href="/~_~_gdindex/resources/css/app.css" rel=stylesheet></head><body><script>window.props = { title: '${config.title}', default_root_id: '${config.default_root_id}', api: location.protocol + '//' + location.host, upload: ${config.upload} }<\/script><div id=app></div><script src="/~_~_gdindex/resources/js/app.js"><\/script></body></html>`
 
 async function onGet(request) {
 	let { pathname: path } = request
 	const rootId =
-		request.searchParams.get('rootId') || self.props.default_root_id
+		request.searchParams.get('rootId') || config.default_root_id
 	if (path.startsWith('/~_~_gdindex/resources/')) {
 		const remain = path.replace('/~_~_gdindex/resources/', '')
 		const r = await fetch(
@@ -62,7 +75,7 @@ async function onGet(request) {
 async function onPost(request) {
 	let { pathname: path } = request
 	const rootId =
-		request.searchParams.get('rootId') || self.props.default_root_id
+		request.searchParams.get('rootId') || config.default_root_id
 	if (path.substr(-1) === '/') {
 		return new Response(
 			JSON.stringify(await gd.listFolderByPath(path, rootId)),
@@ -100,7 +113,7 @@ async function onPost(request) {
 	}
 }
 async function onPut(request) {
-	if (!self.props.upload) {
+	if (!config.upload) {
 		return new Response("Upload isn't enabled.", {
 			headers: {
 				'Content-Type': 'text/plain'
@@ -135,7 +148,7 @@ async function onPut(request) {
 	const name = tok.pop()
 	const parent = tok.join('/')
 	const rootId =
-		request.searchParams.get('rootId') || self.props.default_root_id
+		request.searchParams.get('rootId') || config.default_root_id
 	return new Response(
 		JSON.stringify(await gd.uploadByPath(parent, name, fileBody, rootId)),
 		{
@@ -167,7 +180,7 @@ function doBasicAuth(request) {
 		return false
 	}
 	const [user, pass] = parseBasicAuth(auth)
-	return user === self.props.user && pass === self.props.pass
+	return user === config.user && pass === config.pass
 }
 function encodePathComponent(path) {
 	return path.split('/').map(encodeURIComponent).join('/')
@@ -183,7 +196,7 @@ async function handleRequest(request) {
 				'Access-Control-Allow-Methods': 'GET, POST, PUT, HEAD, OPTIONS'
 			}
 		})
-	if (self.props.auth && !doBasicAuth(request)) {
+	if (config.auth && !doBasicAuth(request)) {
 		return unauthorized()
 	}
 	request = Object.assign({}, request, new URL(request.url))
@@ -193,7 +206,7 @@ async function handleRequest(request) {
 		.map(decodeURIComponent) // for some super special cases, browser will force encode it...   eg: +αあるふぁきゅん。 - +♂.mp3
 		.join('/')
 
-	if (self.props.lite && request.pathname.endsWith('/')) {
+	if (config.lite && request.pathname.endsWith('/')) {
 		// lite mode
 		const path = request.pathname
 		let parent = encodePathComponent(
@@ -201,7 +214,7 @@ async function handleRequest(request) {
 		)
 		const { files } = await gd.listFolderByPath(
 			path,
-			self.props.default_root_id
+			config.default_root_id
 		)
 		let fileht = ''
 		for (const f of files) {

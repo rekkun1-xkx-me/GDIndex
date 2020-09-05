@@ -1,4 +1,4 @@
-import xf from './xfetch'
+import xf from './xfetch.js'
 
 class GoogleDrive {
 	constructor(auth) {
@@ -44,7 +44,7 @@ class GoogleDrive {
 			}
 		})
 	}
-	async downloadByPath(path, rootId = 'root', range = '') {
+	async downloadByPath(path, rootId ='0AHcxHWCmV4OOUk9PVA', range = '') {
 		const id = await this.getId(path, rootId)
 		if (!id) return null
 		return this.download(id, range)
@@ -61,7 +61,7 @@ class GoogleDrive {
 			})
 			.json()
 	}
-	async getMetaByPath(path, rootId = 'root') {
+	async getMetaByPath(path, rootId ='0AHcxHWCmV4OOUk9PVA') {
 		const id = await this.getId(path, rootId)
 		if (!id) return null
 		return this.getMeta(id)
@@ -96,12 +96,12 @@ class GoogleDrive {
 		} while (pageToken)
 		return { files }
 	}
-	async listFolderByPath(path, rootId = 'root') {
+	async listFolderByPath(path, rootId ='0AHcxHWCmV4OOUk9PVA') {
 		const id = await this.getId(path, rootId)
 		if (!id) return null
 		return this.listFolder(id)
 	}
-	async getId(path, rootId = 'root') {
+	async getId(path, rootId ='0AHcxHWCmV4OOUk9PVA') {
 		const toks = path.split('/').filter(Boolean)
 		let id = rootId
 		for (const tok of toks) {
@@ -154,7 +154,7 @@ class GoogleDrive {
 			})
 			.json()
 	}
-	async uploadByPath(path, name, file, rootId = 'root') {
+	async uploadByPath(path, name, file, rootId ='0AHcxHWCmV4OOUk9PVA') {
 		const id = await this.getId(path, rootId)
 		if (!id) return null
 		return this.upload(id, name, file)
@@ -162,7 +162,7 @@ class GoogleDrive {
 	async delete(fileId) {
 		return this.client.delete(`files/${fileId}`)
 	}
-	async deleteByPath(path, rootId = 'root') {
+	async deleteByPath(path, rootId ='0AHcxHWCmV4OOUk9PVA') {
 		const id = await this.getId(path, rootId)
 		if (!id) return null
 		return this.delete(id)

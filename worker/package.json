@@ -12,5 +12,6 @@
 	},
 	"scripts": {
 		"build": "bili"
-	}
+	},
+	"type": "module"
 }
